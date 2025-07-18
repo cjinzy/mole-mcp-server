@@ -1,0 +1,74 @@
+name: stealthmole-mcp-server
+description: StealthMole MCP Server for dark web and cybersecurity threat intelligence
+version: 1.0.0
+author: realsun
+license: MIT
+
+runtime: container
+dockerfile: Dockerfile
+context: .
+
+start:
+  type: http
+  
+mcp:
+  type: http
+  endpoint: /mcp
+
+config:
+  schema:
+    type: object
+    properties:
+      apiUrl:
+        type: string
+        format: uri
+        default: "https://api.stealthmole.com"
+        title: "StealthMole API URL"
+        description: "Base URL for the StealthMole API"
+      accessKey:
+        type: string
+        title: "Access Key"
+        description: "StealthMole API access key"
+      secretKey:
+        type: string
+        title: "Secret Key"
+        description: "StealthMole API secret key"
+        format: password
+      defaultSearchLimit:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 10
+        title: "Default Search Limit"
+        description: "Default number of results to return for search queries"
+      defaultTimeout:
+        type: integer
+        minimum: 1000
+        maximum: 60000
+        default: 30000
+        title: "Default Timeout (ms)"
+        description: "Default timeout for API requests in milliseconds"
+    required:
+      - accessKey
+      - secretKey
+
+tools:
+  - search_darkweb
+  - search_telegram
+  - search_credentials
+  - search_ransomware
+  - get_user_quota
+  - download_file
+
+categories:
+  - cybersecurity
+  - threat-intelligence
+  - dark-web-monitoring
+
+dependencies:
+  - name: "@modelcontextprotocol/sdk"
+    version: "^1.10.2"
+  - name: "express"
+    version: "^4.18.2"
+  - name: "axios"
+    version: "^1.6.7"
