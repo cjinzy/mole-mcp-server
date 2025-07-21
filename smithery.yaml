@@ -12,7 +12,7 @@ runtime: "container"
 
 # Start command configuration for container runtime
 startCommand:
-  type: "http"
+  type: "stdio"
   configSchema:
     type: "object"
     required: ["STEALTHMOLE_ACCESS_KEY", "STEALTHMOLE_SECRET_KEY"]
