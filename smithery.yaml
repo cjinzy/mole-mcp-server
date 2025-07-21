@@ -31,6 +31,10 @@ startCommand:
   exampleConfig:
     STEALTHMOLE_ACCESS_KEY: "your-access-key"
     STEALTHMOLE_SECRET_KEY: "your-secret-key"
+  commandFunction:
+    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
+    |-
+    (config) => ({ command: 'python', args: ['-m', 'duckduckgo_mcp_server.server'] })
 
 # Docker build configuration
 build:
