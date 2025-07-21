@@ -1,5 +1,5 @@
 name: stealthmole-search
-version: 0.9.0
+version: 1.0
 description: StealthMole MCP Server - Advanced threat intelligence and dark web monitoring tools
 author: StealthMole Team
 homepage: https://github.com/cjinzy/mole-mcp-server
@@ -86,9 +86,7 @@ startCommand:
       STEALTHMOLE_SECRET_KEY:
         type: string
         description: "StealthMole API Secret Key"
-  commandFunction:
-    # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
-    |-
+  commandFunction: |-
     (config) => ({
       command: 'python',
       args: ['-m', 'stealthmole_mcp.server'],
