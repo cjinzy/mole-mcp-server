@@ -34,7 +34,7 @@ startCommand:
   commandFunction:
     # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
     |-
-    (config) => ({ command: 'python', args: ['-m', 'duckduckgo_mcp_server.server'],
+    (config) => ({ command: 'python', args: ['-m', 'stealthmole_mcp.server'],
     env: {
       STEALTHMOLE_ACCESS_KEY: config.STEALTHMOLE_ACCESS_KEY
       STEALTHMOLE_SECRET_KEY: config.STEALTHMOLE_SECRET_KEY
