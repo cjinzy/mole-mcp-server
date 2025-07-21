@@ -1,3 +1,4 @@
+import enum
 from typing import Any, Dict, Optional
 
 from ._request import _make_request
