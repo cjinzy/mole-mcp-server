@@ -63,12 +63,6 @@ tools:
     description: "Get available search targets"
   - name: export_data
     description: "Export search results in various formats"
-  - name: export_compromised_dataset
-    description: "Export compromised data set as CSV/JSON"
-  - name: export_combo_binder
-    description: "Export combo binder data as CSV/JSON"
-  - name: export_ulp_binder
-    description: "Export ULP binder data as CSV/JSON"
   - name: download_file
     description: "Download file by hash from dt or tt service"
   - name: search_pagination
