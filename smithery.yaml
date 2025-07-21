@@ -20,7 +20,7 @@ server:
   command: python
   args:
     - -m
-    - src.server
+    - stealthmole_mcp.server
 
   # 환경 변수 요구사항
   env:
