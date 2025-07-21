@@ -1,3 +1,100 @@
+name: stealthmole-search
+version: 0.9.0
+description: StealthMole MCP Server - Advanced threat intelligence and dark web monitoring tools
+author: StealthMole Team
+homepage: https://github.com/your-org/mole-mcp-server
+repository: https://github.com/your-org/mole-mcp-server
+license: MIT
+keywords:
+  - threat-intelligence
+  - dark-web
+  - cybersecurity
+  - monitoring
+  - stealth-mole
+  - mcp
+  - ai-tools
+
+# MCP 서버 구성
+server:
+  # 서버 실행 명령어
+  command: python
+  args:
+    - -m
+    - stealthmole_mcp.server
+
+  # 환경 변수 요구사항
+  env:
+    STEALTHMOLE_ACCESS_KEY:
+      description: "StealthMole API Access Key"
+      required: true
+      secret: true
+    STEALTHMOLE_SECRET_KEY:
+      description: "StealthMole API Secret Key"
+      required: true
+      secret: true
+
+# 지원하는 도구들
+tools:
+  - name: search_darkweb
+    description: "Search dark web content for various indicators"
+  - name: search_telegram
+    description: "Search Telegram content for indicators"
+  - name: search_credentials
+    description: "Search for leaked credentials"
+  - name: search_ransomware
+    description: "Search ransomware victim data"
+  - name: search_compromised_dataset
+    description: "Search compromised data sets"
+  - name: search_combo_binder
+    description: "Search combo/credential binding data"
+  - name: search_ulp_binder
+    description: "Search URL-Login-Password combinations"
+  - name: search_government_monitoring
+    description: "Search government sector threat monitoring"
+  - name: search_leaked_monitoring
+    description: "Search leaked monitoring data"
+  - name: get_node_details
+    description: "Get detailed information about a specific node"
+  - name: get_compromised_dataset_node
+    description: "Get detailed compromised data set node information"
+  - name: get_user_quotas
+    description: "Get API usage quotas"
+  - name: get_targets
+    description: "Get available search targets"
+  - name: export_data
+    description: "Export search results in various formats"
+  - name: export_compromised_dataset
+    description: "Export compromised data set as CSV/JSON"
+  - name: export_combo_binder
+    description: "Export combo binder data as CSV/JSON"
+  - name: export_ulp_binder
+    description: "Export ULP binder data as CSV/JSON"
+  - name: download_file
+    description: "Download file by hash from dt or tt service"
+  - name: search_pagination
+    description: "Pagination search using search ID"
+
+# 카테고리
+categories:
+  - Security
+  - Intelligence
+  - Monitoring
+
+# 지원하는 트랜스포트
+transports:
+  - stdio
+  - sse
+
+# 최소 Python 버전 요구사항
+python_version: ">=3.12"
+
+# 의존성
+dependencies:
+  - httpx>=0.28.1
+  - mcp>=1.11.0
+  - python-dotenv>=1.1.1
+  - pyjwt>=2.8.0
+  - pydantic>=2.5.0
 # Smithery configuration file: https://smithery.ai/docs/config#smitheryyaml
 
 startCommand:
