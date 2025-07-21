@@ -76,14 +76,6 @@ coverage/
 ehthumbs.db
 Thumbs.db
 
-# API Documentation
-StealthMole_API_MANUAL@VER2.2_EN 2024.11.pdf
-StealthMole_API_MANUAL@VER2.2_KR_241105.pdf
-Stealthmole-API-MANUAL.md
-
-# Config files
-claude_desktop_config.json
-cursor_config.json
 
 # Cache directories
 .cache/
