@@ -3,10 +3,7 @@
 from typing import Any, Dict, Optional
 
 from ..tools.download_file import download_file
-from ..tools.export_combo_binder import export_combo_binder
-from ..tools.export_compromised_dataset import export_compromised_dataset
 from ..tools.export_data import export_data
-from ..tools.export_ulp_binder import export_ulp_binder
 from ..tools.get_compromised_dataset_node import get_compromised_dataset_node
 from ..tools.get_node_details import get_node_details
 from ..tools.get_targets import get_targets
@@ -120,13 +117,6 @@ class StealthMoleClient:
         """Search compromised data set information."""
         return await search_compromised_dataset(indicator, limit)
 
-    async def export_compromised_dataset(
-        self,
-        indicator: str,
-        format: str = "json",
-    ) -> Dict[str, Any]:
-        """Export compromised data set as CSV/JSON."""
-        return await export_compromised_dataset(indicator, format)
 
     async def get_compromised_dataset_node(
         self,
@@ -143,13 +133,6 @@ class StealthMoleClient:
         """Search leaked ID/Password combo information."""
         return await search_combo_binder(indicator, limit)
 
-    async def export_combo_binder(
-        self,
-        indicator: str,
-        format: str = "json",
-    ) -> Dict[str, Any]:
-        """Export combo binder data as CSV/JSON."""
-        return await export_combo_binder(indicator, format)
 
     async def search_ulp_binder(
         self,
@@ -159,13 +142,6 @@ class StealthMoleClient:
         """Search URL-Login-Password combination information."""
         return await search_ulp_binder(indicator, limit)
 
-    async def export_ulp_binder(
-        self,
-        indicator: str,
-        format: str = "json",
-    ) -> Dict[str, Any]:
-        """Export ULP binder data as CSV/JSON."""
-        return await export_ulp_binder(indicator, format)
 
     async def search_government_monitoring(
         self,
