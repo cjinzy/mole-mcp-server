@@ -9,19 +9,24 @@ license: MIT
 
 # Runtime configuration - using container for Python MCP server
 runtime: "container"
+# Environment variables passed to the container
+env:
+  PYTHONUNBUFFERED: "1"
 
 # Start command configuration for container runtime
 startCommand:
-  type: "stdio"
+  type: stdio
   configSchema:
     type: "object"
     required: ["STEALTHMOLE_ACCESS_KEY", "STEALTHMOLE_SECRET_KEY"]
     properties:
       STEALTHMOLE_ACCESS_KEY:
         type: "string"
+        title: "STEALTHMOLE_ACCESS_KEY"
         description: "StealthMole API Access Key"
       STEALTHMOLE_SECRET_KEY:
         type: "string"
+        title: "STEALTHMOLE_SECRET_KEY"
         description: "StealthMole API Secret Key"
   exampleConfig:
     STEALTHMOLE_ACCESS_KEY: "your-access-key"
@@ -31,7 +36,3 @@ startCommand:
 build:
   dockerfile: "./Dockerfile"
   dockerBuildPath: "."
-
-# Environment variables passed to the container
-env:
-  PYTHONUNBUFFERED: "1"
