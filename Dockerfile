@@ -9,4 +9,4 @@ RUN uv sync
 
 RUN pip install -e .
 
-RUN ["python", "-m", "stealthmole_mcp.server"]
+CMD ["python", "-m", "stealthmole_mcp.server"]
