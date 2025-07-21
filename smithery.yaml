@@ -1,47 +1,105 @@
 name: stealthmole-search
 version: 0.9.0
-description: "StealthMole MCP 서버 - 고급 위협 인텔리전스 및 다크웹 모니터링 도구 / StealthMole MCP Server - Advanced threat intelligence and dark web monitoring tools"
+description: StealthMole MCP Server - Advanced threat intelligence and dark web monitoring tools
 author: StealthMole Team
+homepage: https://github.com/cjinzy/mole-mcp-server
 repository: https://github.com/cjinzy/mole-mcp-server
 license: MIT
+keywords:
+  - threat-intelligence
+  - dark-web
+  - cybersecurity
+  - monitoring
+  - stealth-mole
+  - mcp
+  - ai-tools
 
-# Smithery configuration file: https://smithery.ai/docs/config#smitheryyaml
+# MCP 서버 구성
+server:
+  # 서버 실행 명령어
+  command: python
+  args:
+    - -m
+    - stealthmole_mcp.server
 
-# Runtime configuration - using container for Python MCP server
-runtime: "container"
-# Environment variables passed to the container
-env:
-  PYTHONUNBUFFERED: "1"
+  # 환경 변수 요구사항
+  env:
+    STEALTHMOLE_ACCESS_KEY:
+      description: "StealthMole API Access Key"
+      required: true
+      secret: false
+    STEALTHMOLE_SECRET_KEY:
+      description: "StealthMole API Secret Key"
+      required: true
+      secret: true
 
-# Start command configuration for container runtime
+# 지원하는 도구들
+tools:
+  - name: search_darkweb
+    description: "Search dark web content for various indicators"
+  - name: search_telegram
+    description: "Search Telegram content for indicators"
+  - name: search_credentials
+    description: "Search for leaked credentials"
+  - name: search_ransomware
+    description: "Search ransomware victim data"
+  - name: search_compromised_dataset
+    description: "Search compromised data sets"
+  - name: search_combo_binder
+    description: "Search combo/credential binding data"
+  - name: search_ulp_binder
+    description: "Search URL-Login-Password combinations"
+  - name: search_government_monitoring
+    description: "Search government sector threat monitoring"
+  - name: search_leaked_monitoring
+    description: "Search leaked monitoring data"
+  - name: get_node_details
+    description: "Get detailed information about a specific node"
+  - name: get_compromised_dataset_node
+    description: "Get detailed compromised data set node information"
+  - name: get_user_quotas
+    description: "Get API usage quotas"
+  - name: get_targets
+    description: "Get available search targets"
+  - name: export_data
+    description: "Export search results in various formats"
+  - name: export_compromised_dataset
+    description: "Export compromised data set as CSV/JSON"
+  - name: export_combo_binder
+    description: "Export combo binder data as CSV/JSON"
+  - name: export_ulp_binder
+    description: "Export ULP binder data as CSV/JSON"
+  - name: download_file
+    description: "Download file by hash from dt or tt service"
+  - name: search_pagination
+    description: "Pagination search using search ID"
+
+# 카테고리
+categories:
+  - Security
+  - Intelligence
+  - Monitoring
+
 startCommand:
   type: stdio
   configSchema:
-    type: "object"
+    type: object
     required: ["STEALTHMOLE_ACCESS_KEY", "STEALTHMOLE_SECRET_KEY"]
     properties:
       STEALTHMOLE_ACCESS_KEY:
-        type: "string"
-        title: "STEALTHMOLE_ACCESS_KEY"
-        description: "StealthMole API Access Key"
+        type: string
+        description: "StealthMole API Access key"
       STEALTHMOLE_SECRET_KEY:
-        type: "string"
-        title: "STEALTHMOLE_SECRET_KEY"
+        type: string
         description: "StealthMole API Secret Key"
-  exampleConfig:
-    STEALTHMOLE_ACCESS_KEY: "your-access-key"
-    STEALTHMOLE_SECRET_KEY: "your-secret-key"
   commandFunction:
     # A JS function that produces the CLI command based on the given config to start the MCP on stdio.
     |-
-    (config) => ({ command: 'python', args: ['-m', 'stealthmole_mcp.server'],
-    env: {
-      STEALTHMOLE_ACCESS_KEY: config.STEALTHMOLE_ACCESS_KEY
-      STEALTHMOLE_SECRET_KEY: config.STEALTHMOLE_SECRET_KEY
-    }
+    (config) => ({
+      command: 'python',
+      args: ['-m', 'stealthmole_mcp.server'],
+      env: {
+        STEALTHMOLE_ACCESS_KEY: config.STEALTHMOLE_ACCESS_KEY,
+        STEALTHMOLE_SECRET_KEY: config.STEALTHMOLE_SECRET_KEY
+      }
     })
-
-# Docker build configuration
-build:
-  dockerfile: "./Dockerfile"
-  dockerBuildPath: "."
