@@ -44,7 +44,7 @@ runtime:
   type: mcp
   transport: stdio
 
-environmentVariables:
+environment:
   STEALTHMOLE_ACCESS_KEY:
     description: "StealthMole API Access Key"
     required: true
