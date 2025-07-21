@@ -33,41 +33,6 @@ server:
       required: true
       secret: true
 
-# 지원하는 도구들
-tools:
-  - name: search_darkweb
-    description: "Search dark web content for various indicators"
-  - name: search_telegram
-    description: "Search Telegram content for indicators"
-  - name: search_credentials
-    description: "Search for leaked credentials"
-  - name: search_ransomware
-    description: "Search ransomware victim data"
-  - name: search_compromised_dataset
-    description: "Search compromised data sets"
-  - name: search_combo_binder
-    description: "Search combo/credential binding data"
-  - name: search_ulp_binder
-    description: "Search URL-Login-Password combinations"
-  - name: search_government_monitoring
-    description: "Search government sector threat monitoring"
-  - name: search_leaked_monitoring
-    description: "Search leaked monitoring data"
-  - name: get_node_details
-    description: "Get detailed information about a specific node"
-  - name: get_compromised_dataset_node
-    description: "Get detailed compromised data set node information"
-  - name: get_user_quotas
-    description: "Get API usage quotas"
-  - name: get_targets
-    description: "Get available search targets"
-  - name: export_data
-    description: "Export search results in various formats"
-  - name: download_file
-    description: "Download file by hash from dt or tt service"
-  - name: search_pagination
-    description: "Pagination search using search ID"
-
 # 카테고리
 categories:
   - Security
