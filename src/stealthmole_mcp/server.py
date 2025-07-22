@@ -22,13 +22,8 @@ from mcp.types import (
 from pydantic import AnyUrl
 
 from .tools import *
-from .utils.client import StealthMoleClient
-from .utils.config import StealthMoleConfig
 
 load_dotenv()
-
-# Global client instance
-client: Optional[StealthMoleClient] = None
 
 prompts_path = os.path.join(os.path.dirname(__file__), "prompt")
 
@@ -695,22 +690,13 @@ def apply_default_behavior(name: str, arguments: dict[str, Any]) -> dict[str, An
 @server.call_tool()
 async def handle_call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
     """Handle tool calls with default behavior applied."""
-    global client
-
-    if client is None:
-        return [
-            TextContent(
-                type="text",
-                text="Error: StealthMole client not initialized. Please check your API credentials.",
-            )
-        ]
 
     # Apply default behavior rules
     arguments = apply_default_behavior(name, arguments)
 
     try:
         if name == "search_darkweb":
-            result = await client.search_darkweb(
+            result = await search_darkweb(
                 indicator=arguments["indicator"],
                 text=arguments["text"],
                 target=arguments.get("target", "all"),
@@ -719,7 +705,7 @@ async def handle_call_tool(name: str, arguments: dict[str, Any]) -> list[TextCon
                 order=arguments.get("order", "desc"),
             )
         elif name == "search_telegram":
-            result = await client.search_telegram(
+            result = await search_telegram(
                 indicator=arguments["indicator"],
                 text=arguments["text"],
                 target=arguments.get("target", "all"),
@@ -728,7 +714,7 @@ async def handle_call_tool(name: str, arguments: dict[str, Any]) -> list[TextCon
                 order=arguments.get("order", "desc"),
             )
         elif name == "search_credentials":
-            result = await client.search_credentials(
+            result = await search_credentials(
                 indicator=arguments["indicator"],
                 limit=arguments.get("limit", 50),
                 cursor=arguments.get("cursor", 0),
@@ -738,7 +724,7 @@ async def handle_call_tool(name: str, arguments: dict[str, Any]) -> list[TextCon
                 end=arguments.get("end"),
             )
         elif name == "search_ransomware":
-            result = await client.search_ransomware(
+            result = await search_ransomware(
                 indicator=arguments["indicator"],
                 limit=arguments.get("limit", 50),
                 cursor=arguments.get("cursor", 0),
@@ -746,7 +732,7 @@ async def handle_call_tool(name: str, arguments: dict[str, Any]) -> list[TextCon
                 order=arguments.get("order", "desc"),
             )
         elif name == "get_node_details":
-            result = await client.get_node_details(
+            result = await get_node_details(
                 service=arguments["service"],
                 node_id=arguments["node_id"],
                 pid=arguments.get("pid"),
@@ -755,33 +741,33 @@ async def handle_call_tool(name: str, arguments: dict[str, Any]) -> list[TextCon
                 include_contents=arguments.get("include_contents", True),
             )
         elif name == "get_targets":
-            result = await client.get_targets(
+            result = await get_targets(
                 service=arguments["service"], indicator=arguments["indicator"]
             )
         elif name == "export_data":
-            result = await client.export_data(
+            result = await export_data(
                 service=arguments["service"],
                 indicator=arguments["indicator"],
                 format=arguments.get("format", "json"),
             )
         elif name == "search_compromised_dataset":
-            result = await client.search_compromised_dataset(
+            result = await search_compromised_dataset(
                 indicator=arguments["indicator"], limit=arguments.get("limit", 50)
             )
         elif name == "get_compromised_dataset_node":
-            result = await client.get_compromised_dataset_node(
+            result = await get_compromised_dataset_node(
                 node_id=arguments["node_id"]
             )
         elif name == "search_combo_binder":
-            result = await client.search_combo_binder(
+            result = await search_combo_binder(
                 indicator=arguments["indicator"], limit=arguments.get("limit", 50)
             )
         elif name == "search_ulp_binder":
-            result = await client.search_ulp_binder(
+            result = await search_ulp_binder(
                 indicator=arguments["indicator"], limit=arguments.get("limit", 50)
             )
         elif name == "search_government_monitoring":
-            result = await client.search_government_monitoring(
+            result = await search_government_monitoring(
                 indicator=arguments["indicator"],
                 limit=arguments.get("limit", 50),
                 cursor=arguments.get("cursor", 0),
@@ -789,7 +775,7 @@ async def handle_call_tool(name: str, arguments: dict[str, Any]) -> list[TextCon
                 order=arguments.get("order", "desc"),
             )
         elif name == "search_leaked_monitoring":
-            result = await client.search_leaked_monitoring(
+            result = await search_leaked_monitoring(
                 indicator=arguments["indicator"],
                 limit=arguments.get("limit", 50),
                 cursor=arguments.get("cursor", 0),
@@ -797,7 +783,7 @@ async def handle_call_tool(name: str, arguments: dict[str, Any]) -> list[TextCon
                 order=arguments.get("order", "desc"),
             )
         elif name == "download_file":
-            file_content = await client.download_file(
+            file_content = await download_file(
                 service=arguments["service"], file_hash=arguments["file_hash"]
             )
             return [
@@ -807,14 +793,14 @@ async def handle_call_tool(name: str, arguments: dict[str, Any]) -> list[TextCon
                 )
             ]
         elif name == "search_pagination":
-            result = await client.search_pagination(
+            result = await search_pagination(
                 service=arguments["service"],
                 search_id=arguments["search_id"],
                 cursor=arguments.get("cursor", 0),
                 limit=arguments.get("limit", 50),
             )
         elif name == "get_user_quotas":
-            result = await client.get_user_quotas()
+            result = await get_user_quotas()
         else:
             return [TextContent(type="text", text=f"Unknown tool: {name}")]
 
@@ -848,12 +834,10 @@ async def handle_call_tool(name: str, arguments: dict[str, Any]) -> list[TextCon
 
 async def run_server():
     """Run the MCP server."""
-    global client
-
     try:
         print("Starting StealthMole MCP server...", file=sys.stderr)
 
-        # Initialize StealthMole client
+        # Check environment variables
         access_key = os.getenv("STEALTHMOLE_ACCESS_KEY")
         secret_key = os.getenv("STEALTHMOLE_SECRET_KEY")
 
@@ -868,14 +852,9 @@ async def run_server():
             print("MCP server will start but tools will not function", file=sys.stderr)
         else:
             try:
-                config = StealthMoleConfig(access_key=access_key, secret_key=secret_key)
-                print("StealthMole config created", file=sys.stderr)
-                client = StealthMoleClient(config)
-                print("StealthMole client initialized", file=sys.stderr)
-
                 # API 연결 테스트 (타임아웃 없이 간단히)
                 try:
-                    quotas = await client.get_user_quotas()
+                    quotas = await get_user_quotas()
                     print(
                         f"✓ API connection successful. Available quotas: {quotas}",
                         file=sys.stderr,
@@ -886,7 +865,7 @@ async def run_server():
 
             except Exception as e:
                 print(
-                    f"Warning: Error creating StealthMole client: {e}", file=sys.stderr
+                    f"Warning: Error testing API connection: {e}", file=sys.stderr
                 )
                 print(
                     "MCP server will start but tools may not function properly",
