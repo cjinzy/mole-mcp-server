@@ -14,7 +14,7 @@ load_dotenv()
 BASE_URL = "https://api.stealthmole.com"
 TIMEOUT = 600.0
 DOWNLOAD_TIMEOUT = 600.0
-MAX_RETRIES = 3
+MAX_RETRIES = 10
 RETRY_DELAY = 1.0
 
 
@@ -28,14 +28,7 @@ async def _make_request(endpoint: str, params: Optional[Dict] = None) -> Dict[st
                 headers = _get_headers()
                 response = await client.get(url, headers=headers, params=params or {})
                 response.raise_for_status()
-                data = response.json()
-                if data is None:
-                    # response가 null인 경우 재요청
-                    await asyncio.sleep(RETRY_DELAY)
-                    response = await client.get(url, headers=headers, params=params or {})
-                    response.raise_for_status()
-                    data = response.json()
-                return data
+                return response.json()
             except (httpx.TimeoutException, httpx.ConnectError, httpx.ReadTimeout) as e:
                 if attempt == MAX_RETRIES - 1:
                     raise httpx.TimeoutException(
