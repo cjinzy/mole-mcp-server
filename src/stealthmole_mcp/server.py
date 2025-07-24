@@ -5,7 +5,6 @@ import os
 import sys
 from typing import Any, Optional, Sequence
 
-from click import prompt
 from dotenv import load_dotenv
 from mcp.server import NotificationOptions, Server
 from mcp.server.models import InitializationOptions
@@ -662,37 +661,97 @@ async def handle_list_tools() -> list[Tool]:
         return []
 
 
-def apply_default_behavior(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
-    """Apply default behavior rules to tool arguments."""
-    # Always set limit to maximum value
-    if "limit" in arguments:
+def apply_default_behavior(name: str, arguments: dict[str, Any], prompt: Optional[str] = None) -> dict[str, Any]:
+    """Apply default behavior rules to tool arguments based on tool name and optional prompt context.
+    
+    Args:
+        name: The tool name being called
+        arguments: The original arguments dictionary
+        prompt: Optional prompt context to influence behavior
+        
+    Returns:
+        Modified arguments dictionary with defaults applied
+    """
+    # Create a copy to avoid mutating the original
+    modified_args = arguments.copy()
+    
+    # Apply limit defaults based on tool type
+    if "limit" in modified_args:
         if name in ["search_darkweb", "search_telegram"]:
-            arguments["limit"] = 50
+            # For general searches, use smaller limit unless prompt suggests otherwise
+            if prompt and ("detailed" in prompt.lower() or "comprehensive" in prompt.lower()):
+                modified_args["limit"] = 20
+            else:
+                modified_args["limit"] = 10
         elif name in [
             "search_credentials",
-            "search_ransomware",
+            "search_ransomware", 
             "search_compromised_dataset",
             "search_combo_binder",
             "search_ulp_binder",
             "search_government_monitoring",
             "search_leaked_monitoring",
         ]:
-            arguments["limit"] = 50
+            # For sensitive data searches, use larger limit by default
+            if prompt and "quick" in prompt.lower():
+                modified_args["limit"] = 20
+            else:
+                modified_args["limit"] = 50
 
     # Handle indicator defaults for search tools
     if name in ["search_darkweb", "search_telegram"]:
-        if "indicator" not in arguments or not arguments["indicator"]:
-            arguments["indicator"] = "keyword"
+        if "indicator" not in modified_args or not modified_args["indicator"]:
+            # Default to keyword search unless prompt suggests otherwise
+            if prompt:
+                if "domain" in prompt.lower():
+                    modified_args["indicator"] = "domain"
+                elif "ip" in prompt.lower() or "address" in prompt.lower():
+                    modified_args["indicator"] = "ip"
+                elif "email" in prompt.lower():
+                    modified_args["indicator"] = "email"
+                else:
+                    modified_args["indicator"] = "keyword"
+            else:
+                modified_args["indicator"] = "keyword"
+    
+    return modified_args
 
-    return arguments
 
+def removal_empty(result: dict[str, Any]) -> dict[str, Any]:
+    """Remove empty keys from result."""
+    keys_to_remove = [key for key in result.keys() if result[key].get("totalCount") == 0]
+    for key in keys_to_remove:
+        del result[key]
+    return result
+    
+
+def removal_highlight(result: dict[str, Any]) -> dict[str, Any]:
+    """Remove highlight from result."""
+    for key in list(result.keys()):
+        if len(result[key]["data"]) > 0:
+            for contents in result[key]["data"]:
+                if "highlight" in contents:
+                    del contents["highlight"]
+    return result
+
+def removal_empty_metadata(result: dict[str, Any]) -> dict[str, Any]:
+    """Remove metadata from result."""
+    for key in list(result.keys()):
+        if len(result[key]["data"]) > 0:
+            for contents in result[key]["data"]:
+                if bool(contents.get("metadata")) == False:
+                    del contents["metadata"]
+    return result
 
 @server.call_tool()
 async def handle_call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
     """Handle tool calls with default behavior applied."""
 
-    # Apply default behavior rules
-    arguments = apply_default_behavior(name, arguments)
+    # Extract prompt from arguments if provided (for context-aware defaults)
+    prompt = arguments.pop("_prompt", None) if "_prompt" in arguments else None
+    
+    # Apply default behavior rules with prompt context
+    arguments = apply_default_behavior(name, arguments, prompt)
 
     try:
         if name == "search_darkweb":
@@ -700,19 +759,31 @@ async def handle_call_tool(name: str, arguments: dict[str, Any]) -> list[TextCon
                 indicator=arguments["indicator"],
                 text=arguments["text"],
                 target=arguments.get("target", "all"),
-                limit=arguments.get("limit", 50),
+                limit=arguments.get("limit", 10),
                 orderType=arguments.get("orderType", "createDate"),
                 order=arguments.get("order", "desc"),
             )
+
+            if type(result) == dict:
+                result = removal_empty(result)
+                result = removal_highlight(result)
+                result = removal_empty_metadata(result)
+
         elif name == "search_telegram":
             result = await search_telegram(
                 indicator=arguments["indicator"],
                 text=arguments["text"],
                 target=arguments.get("target", "all"),
-                limit=arguments.get("limit", 50),
+                limit=arguments.get("limit", 10),
                 orderType=arguments.get("orderType", "createDate"),
                 order=arguments.get("order", "desc"),
             )
+
+            if type(result) == dict:
+                result = removal_empty(result)
+                result = removal_highlight(result)
+                result = removal_empty_metadata(result)
+
         elif name == "search_credentials":
             result = await search_credentials(
                 indicator=arguments["indicator"],
@@ -805,8 +876,14 @@ async def handle_call_tool(name: str, arguments: dict[str, Any]) -> list[TextCon
             return [TextContent(type="text", text=f"Unknown tool: {name}")]
 
         # Format response
-        response_text = f"StealthMole API Results:{result}"
-        return [TextContent(type="text", text=response_text)]
+        # result remove whitespace
+        response_text = f"{result}"
+        return [
+            TextContent(
+                type="text",
+                text=response_text,
+            )
+        ]
 
     except asyncio.TimeoutError:
         return [
@@ -884,7 +961,7 @@ async def run_server():
                     write_stream,
                     InitializationOptions(
                         server_name="stealthmole-mcp",
-                        server_version="0.1.0",
+                        server_version="1.0.0",
                         capabilities=server.get_capabilities(
                             notification_options=NotificationOptions(),
                             experimental_capabilities={},
