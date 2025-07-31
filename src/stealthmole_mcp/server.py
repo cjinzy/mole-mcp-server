@@ -297,13 +297,13 @@ async def handle_list_tools() -> list[Tool]:
                             "type": "string",
                             "description": "Order type",
                             "enum": [
-                                "leakedDate",
+                                "LeakedDate",
                                 "domain",
                                 "email",
                                 "password",
-                                "leakedFrom",
+                                "LeakedFrom",
                             ],
-                            "default": "leakedDate",
+                            "default": "LeakedDate",
                         },
                         "order": {
                             "type": "string",
@@ -661,31 +661,35 @@ async def handle_list_tools() -> list[Tool]:
         return []
 
 
-def apply_default_behavior(name: str, arguments: dict[str, Any], prompt: Optional[str] = None) -> dict[str, Any]:
+def apply_default_behavior(
+    name: str, arguments: dict[str, Any], prompt: Optional[str] = None
+) -> dict[str, Any]:
     """Apply default behavior rules to tool arguments based on tool name and optional prompt context.
-    
+
     Args:
         name: The tool name being called
         arguments: The original arguments dictionary
         prompt: Optional prompt context to influence behavior
-        
+
     Returns:
         Modified arguments dictionary with defaults applied
     """
     # Create a copy to avoid mutating the original
     modified_args = arguments.copy()
-    
+
     # Apply limit defaults based on tool type
     if "limit" in modified_args:
         if name in ["search_darkweb", "search_telegram"]:
             # For general searches, use smaller limit unless prompt suggests otherwise
-            if prompt and ("detailed" in prompt.lower() or "comprehensive" in prompt.lower()):
+            if prompt and (
+                "detailed" in prompt.lower() or "comprehensive" in prompt.lower()
+            ):
                 modified_args["limit"] = 20
             else:
                 modified_args["limit"] = 10
         elif name in [
             "search_credentials",
-            "search_ransomware", 
+            "search_ransomware",
             "search_compromised_dataset",
             "search_combo_binder",
             "search_ulp_binder",
@@ -713,17 +717,19 @@ def apply_default_behavior(name: str, arguments: dict[str, Any], prompt: Optiona
                     modified_args["indicator"] = "keyword"
             else:
                 modified_args["indicator"] = "keyword"
-    
+
     return modified_args
 
 
 def removal_empty(result: dict[str, Any]) -> dict[str, Any]:
     """Remove empty keys from result."""
-    keys_to_remove = [key for key in result.keys() if result[key].get("totalCount") == 0]
+    keys_to_remove = [
+        key for key in result.keys() if result[key].get("totalCount") == 0
+    ]
     for key in keys_to_remove:
         del result[key]
     return result
-    
+
 
 def removal_highlight(result: dict[str, Any]) -> dict[str, Any]:
     """Remove highlight from result."""
@@ -734,6 +740,7 @@ def removal_highlight(result: dict[str, Any]) -> dict[str, Any]:
                     del contents["highlight"]
     return result
 
+
 def removal_empty_metadata(result: dict[str, Any]) -> dict[str, Any]:
     """Remove metadata from result."""
     for key in list(result.keys()):
@@ -743,13 +750,14 @@ def removal_empty_metadata(result: dict[str, Any]) -> dict[str, Any]:
                     del contents["metadata"]
     return result
 
+
 @server.call_tool()
 async def handle_call_tool(name: str, arguments: dict[str, Any]) -> list[TextContent]:
     """Handle tool calls with default behavior applied."""
 
     # Extract prompt from arguments if provided (for context-aware defaults)
     prompt = arguments.pop("_prompt", None) if "_prompt" in arguments else None
-    
+
     # Apply default behavior rules with prompt context
     arguments = apply_default_behavior(name, arguments, prompt)
 
@@ -826,9 +834,7 @@ async def handle_call_tool(name: str, arguments: dict[str, Any]) -> list[TextCon
                 indicator=arguments["indicator"], limit=arguments.get("limit", 50)
             )
         elif name == "get_compromised_dataset_node":
-            result = await get_compromised_dataset_node(
-                node_id=arguments["node_id"]
-            )
+            result = await get_compromised_dataset_node(node_id=arguments["node_id"])
         elif name == "search_combo_binder":
             result = await search_combo_binder(
                 indicator=arguments["indicator"], limit=arguments.get("limit", 50)
@@ -941,9 +947,7 @@ async def run_server():
                     print("Continuing with server startup...", file=sys.stderr)
 
             except Exception as e:
-                print(
-                    f"Warning: Error testing API connection: {e}", file=sys.stderr
-                )
+                print(f"Warning: Error testing API connection: {e}", file=sys.stderr)
                 print(
                     "MCP server will start but tools may not function properly",
                     file=sys.stderr,
